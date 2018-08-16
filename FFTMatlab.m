@@ -4,29 +4,26 @@
 %           de espectro no Matlab, utilizando a fft                 %
 %___________________________________________________________________%
 
-%Representaçãono domínio do tempo
-%SINAL SENOIDAL
-f = 10; %frequncia da onda senoidal
-osr = 30; %taxa de sobre amostragem
-fs = osr*f; %frequencia de amostragem
-fase = 1/3*pi; %fase em radianos
-nc = 5; %gera a quantidade de ciclos, no nosso caso sao 5 ciclos
-
-t = (0:1/fs:nc*(1/f)); %tempo de amostragem 
-
-yt = sin(2*pi*f*t+fase); %sinal senoidal comum
+%Time domain representation-----------------------------------------
+%Transmitted signal 
+f = 10;                 %signal frequency
+fs = 30*f;              %sample frequency 
+pahse = 1/3*pi;         %initial phase 
+nc = 5;                 %cycle number
+t = (0:1/fs:nc*(1/f));  %sampling time 
+yt = sin(2*pi*f*t+pahse); %Signal
+%--------------------------------------------------------------------
 
 subplot(4,2,1), plot(t,yt,'g');
 title(['Onda Senoidal com f=', num2str(f), 'Hz']);
 xlabel('Tempo(s)');
 ylabel('Amplitude');
 
-%____________________________________________________________________%
-%Representação no domínio da frequencia
+%Frequency domain representation-------------------------------------
 %O matlab utiliza a fft (fast fourier transform) que implementa a
 %transformada de fourier discreta (DFT). O comando FFT(x,N) computa os N
 %pontos de uma DFT.
-NFFT = 1024; %número de pontos da DFT, pntos de amostragem
+NFFT = 1024;    %sample - número de pontos da DFT, pntos de amostragem
 L = length(yt); %tamanho do vetor yt
 
 %1. PLOTANDO VALORES BRUTOS
@@ -100,3 +97,11 @@ subplot(4,2,8), plot(fVal,Px(1:NFFT/2), 'b'); %plota na escala logaritma
 title('Densidade da Potencia Espectral de uma banda');
 xlabel('Frequencia (Hz)');
 ylabel('Potencia');
+
+
+
+%8. PHASE
+Yf = fftshift(fft(yt, NFFT)); %computa 1024 pontos da DFT 
+
+figure;
+plot(unwrap(angle(Yf)))
