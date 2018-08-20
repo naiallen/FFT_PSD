@@ -1,21 +1,25 @@
 % __________________________________________________________________%
 %                                                                   %
-%           Código exemplificando alguns tipos de plotagem          %
-%           de espectro no Matlab, utilizando a fft                 %
+
+
+
+
+
 %___________________________________________________________________%
 
 %Time domain representation-----------------------------------------
 %Transmitted signal 
-f = 10;                 %signal frequency
-fs = 30*f;              %sample frequency 
-pahse = 1/3*pi;         %initial phase 
-nc = 5;                 %cycle number
-t = (0:1/fs:nc*(1/f));  %sampling time 
-yt = sin(2*pi*f*t+pahse); %Signal
+A = 20;                  %[V]   Amplitude: The maximum absolute value reached by a voltage or current waveform.
+fs = 500;
+Ts = 1/fs;
+t = -0.1:Ts:0.1;
+w = 100e-3; %width
+f = 1/w;
+yt = A*rectpuls(t,w);              
 %--------------------------------------------------------------------
 
 subplot(4,2,1), plot(t,yt,'g');
-title(['Onda Senoidal com f=', num2str(f), 'Hz']);
+title(['Square Wave - f =', num2str(f), 'Hz']);
 xlabel('Tempo(s)');
 ylabel('Amplitude');
 
@@ -23,15 +27,17 @@ ylabel('Amplitude');
 %O matlab utiliza a fft (fast fourier transform) que implementa a
 %transformada de fourier discreta (DFT). O comando FFT(x,N) computa os N
 %pontos de uma DFT.
-NFFT = 1024;    %sample - número de pontos da DFT, pntos de amostragem
+%Bins de frequencia = fs/NFFT = 500/500 = 1
+NFFT = 512; %1024;    %sample - número de pontos da DFT, pntos de amostragem
 L = length(yt); %tamanho do vetor yt
 
 %1. PLOTANDO VALORES BRUTOS
+%The 10 Hz frequency shoud appear in the bin 10 (f/1 -> 10/1)
 Yf = fft(yt, NFFT); %computa 1024 pontos da DFT 
 nVal = 0:NFFT-1;    %pontos de amostragem para o gráfico
 
 subplot(4,2,3), plot (nVal, abs(Yf), 'r');
-title('Double Side FFT - Sem utilizar o FFTSHIFT');
+title('1 - Double Side FFT - Sem utilizar o FFTSHIFT');
 xlabel('Pontos de Amostragem');
 ylabel('valores DFT');
 
@@ -40,7 +46,7 @@ Yf = fft(yt, NFFT); %computa 1024 pontos da DFT
 nVal = (0:NFFT-1)/NFFT;%normalizacao dos pontos de amostragem
 
 subplot(4,2,5), plot (nVal, abs(Yf), 'r');
-title('Double Side FFT - Sem utilizar o FFTSHIFT');
+title('2 - Double Side FFT - Sem utilizar o FFTSHIFT');
 xlabel('Frequencia normalizada');
 ylabel('valores DFT');
 
@@ -50,7 +56,7 @@ Yf = fftshift(fft(yt, NFFT)); %computa 1024 pontos da DFT
 fVal = (-NFFT/2:NFFT/2-1)/NFFT;%pontos de amostragem normalizados para o gráfico
 
 subplot(4,2,7), plot (fVal, abs(Yf), 'r');
-title('Double Side FFT - Utizando o FFTSHIFT');
+title('3 - Double Side FFT - Utizando o FFTSHIFT');
 xlabel('Frequencia normalizada e deslocada para 0');
 ylabel('valores DFT');
 
@@ -59,7 +65,7 @@ Yf = fftshift(fft(yt, NFFT)); %computa 1024 pontos da DFT
 fVal = fs*(-NFFT/2:NFFT/2-1)/NFFT;%pontos de amostragem normalizados para o gráfico
 
 subplot(4,2,2), plot (fVal, abs(Yf), 'r');
-title('Double Side FFT - Utizando o FFTSHIFT');
+title('4 - Double Side FFT - Utizando o FFTSHIFT');
 xlabel('Frequencia (Hz)');
 ylabel('|valores DFT|');
 
@@ -73,7 +79,7 @@ Px = Yf.*conj(Yf)/(NFFT*L);   %Potencia de cada frequencia
 
 fVal = fs*(-NFFT/2:NFFT/2-1)/NFFT; %pontos de amostragem normalizados para o gráfico (negativo ao positivo)
 subplot(4,2,4), plot (fVal, Px, 'b');
-title('Densidade da Potencia Espectral');
+title('5 - Densidade da Potencia Espectral');
 xlabel('Frequencia (Hz)');
 ylabel('Potencia');
 
@@ -83,7 +89,7 @@ Px = Yf.*conj(Yf)/(NFFT*L); %Potencia de cada frequencia
 
 fVal = fs*(-NFFT/2:NFFT/2-1)/NFFT; %pontos de amostragem normalizados para o gráfico (negativo ao positivo)
 subplot(4,2,6), plot (fVal, 10*log10(Px), 'b'); %plota na escala logaritma
-title('Densidade da Potencia Espectral');
+title('6 - Densidade da Potencia Espectral');
 xlabel('Frequencia (Hz)');
 ylabel('Potencia (dB)');
 
@@ -94,14 +100,9 @@ Px = Yf.*conj(Yf)/(NFFT*L); %Potencia de cada frequencia
 
 fVal = fs*(0:NFFT/2-1)/NFFT; %pontos de amostragem normalizados para o gráfico (negativo ao positivo)
 subplot(4,2,8), plot(fVal,Px(1:NFFT/2), 'b'); %plota na escala logaritma
-title('Densidade da Potencia Espectral de uma banda');
+title('7- Densidade da Potencia Espectral de uma banda');
 xlabel('Frequencia (Hz)');
 ylabel('Potencia');
 
 
 
-%8. PHASE
-Yf = fftshift(fft(yt, NFFT)); %computa 1024 pontos da DFT 
-
-figure;
-plot(unwrap(angle(Yf)))
